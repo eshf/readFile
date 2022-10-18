@@ -9,10 +9,13 @@ public class readFile {
     public static void main(String[] args) {
         if (args.length < 3 || args.length > 3) {
             System.out.println("Parameters input by user is incorrect.");
-            return;
         }
 
         else {
+            // java readFile -r <fileName> <output file>
+            // argument [0]: -r: specify to read
+            // argument [1]: name of file to read
+            // argument [2]: specified file directory, containing the output file
             if (args[0].equalsIgnoreCase("-r")) {
                 readFile.result(args[1], args[2]);
             }
@@ -20,43 +23,64 @@ public class readFile {
 
     }
 
-    private static void fileOutput(String outputZipFile) {
-        String outpath = outdir + "/" + entry.getName();
-        FileOutputStream output = null;
+    private static void outputFile(char[] msgarr, String outFile) {
         try {
-            output = new FileOutputStream(outpath);
-            int len = 0;
-            while ((len = stream.read(buffer)) > 0) {
-                output.write(buffer, 0, len);
+            BufferedWriter writeOut = new BufferedWriter(new FileWriter(outputFile));
+            for (Character line : msgarr) {
+                writeOut.write(line);
             }
-        } finally {
-            // we must always close the output file
-            if (output != null)
-                output.close();
+            writeOut.close();
+        } catch (IOException ex) {
+            System.out.println("Error: Output to file error");
         }
-        stream.close();
-        System.out.println("File is exported successfully.");
 
+        System.out.println("File is exported successfully.");
     }
 
-    private static void readZippedFile(String inZip) {
-        byte[] buffer = new byte[2048];
+    private static String readInfile(String file_input) {
+        String output = "";
+        BufferedReader readIn = null;
 
-        ZipEntry entry;
-        while ((entry = stream.getNextEntry()) != null) {
-            String s = String.format("Entry: %s len %d added %TD", entry.getName(), entry.getSize(),
-                    new Date(entry.getTime()));
-            System.out.println(s);
+        try {
+            readIn = new BufferedReader(new FileReader(file_input));
         }
 
+        catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
+
+        try {
+
+            String i;
+            while ((i = readIn.readLine()) != null) {
+
+                if (!i.isEmpty()) {
+
+                    if (i.length() > 0) {
+
+                        output += i.toString();
+
+                    }
+                }
+            }
+            readIn.close();
+        } catch (IOException ex) {
+            System.out.println("Error: Can't read from file.");
+        }
+
+        // System.out
+
+        // Print?
+        return output;
     }
 
     private static void result(String inFile, String outFile) {
+        String output = "";
 
-        readFile.readZippedFile(inFile);
+        output = readFile.readInfile(inFile);
 
-        readFile.fileOutput(outFile);
+        char[] msgarr = output.toCharArray();
 
+        readFile.outputFile(msgarr, outFile);
     }
-
 }
